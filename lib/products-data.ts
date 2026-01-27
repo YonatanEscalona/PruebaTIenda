@@ -19,15 +19,23 @@ interface DbProduct {
   stock: number | null;
   active: boolean | null;
   category_id: string | null;
-  categories?: DbCategory | null;
+  categories?: DbCategory | DbCategory[] | null;
 }
+
+const resolveCategoryName = (product: DbProduct) => {
+  const categories = product.categories;
+  if (Array.isArray(categories)) {
+    return categories[0]?.name ?? "Sin categoria";
+  }
+  return categories?.name ?? "Sin categoria";
+};
 
 const mapDbProduct = (product: DbProduct): Product => {
   return {
     id: product.id,
     slug: product.slug,
     name: product.name,
-    category: product.categories?.name ?? "Sin categoria",
+    category: resolveCategoryName(product),
     price: Number(product.price),
     oldPrice: product.old_price ? Number(product.old_price) : undefined,
     rating: product.rating ? Number(product.rating) : 5,
