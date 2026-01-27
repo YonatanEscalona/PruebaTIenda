@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f6f7f9;
+  --foreground: #0b0f15;
+  --brand-black: #0b0f15;
+  --brand-red: #ef4444;
+  --brand-red-dark: #dc2626;
+  --brand-red-soft: #fee2e2;
+  --muted: #94a3b8;
+  --surface: #ffffff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-brand-red: var(--brand-red);
+  --color-brand-black: var(--brand-black);
+  --font-sans: var(--font-sora);
+  --font-display: var(--font-bebas);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sora), "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}

@@ -1,0 +1,369 @@
+/* eslint-disable @next/next/no-img-element */
+"use client";
+
+import { useEffect, useState } from "react";
+import AdminShell from "@/components/admin/AdminShell";
+import { adminFetch } from "@/lib/admin-api";
+import { slugify } from "@/lib/slug";
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+interface ProductRow {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  old_price: number | null;
+  stock: number;
+  active: boolean;
+  badge: string | null;
+  image_url: string | null;
+  short_description: string | null;
+  description: string | null;
+  category_id: string | null;
+  categories?: { name: string | null } | null;
+}
+
+interface ProductForm {
+  name: string;
+  slug: string;
+  price: string;
+  oldPrice: string;
+  stock: string;
+  badge: string;
+  imageUrl: string;
+  shortDescription: string;
+  description: string;
+  categoryId: string;
+  active: boolean;
+}
+
+const emptyForm: ProductForm = {
+  name: "",
+  slug: "",
+  price: "",
+  oldPrice: "",
+  stock: "",
+  badge: "",
+  imageUrl: "",
+  shortDescription: "",
+  description: "",
+  categoryId: "",
+  active: true,
+};
+
+export default function AdminProductsPage() {
+  const [products, setProducts] = useState<ProductRow[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [form, setForm] = useState<ProductForm>(emptyForm);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadData = async () => {
+    try {
+      const [productsRes, categoriesRes] = await Promise.all([
+        adminFetch("/api/admin/products"),
+        adminFetch("/api/admin/categories"),
+      ]);
+      const productsData = await productsRes.json();
+      const categoriesData = await categoriesRes.json();
+      setProducts(productsData ?? []);
+      setCategories(categoriesData ?? []);
+    } catch {
+      setError("No se pudo cargar productos.");
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleChange = (field: keyof ProductForm, value: string | boolean) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleImageUpload = async (file: File) => {
+    setUploading(true);
+    setError(null);
+    try {
+      const res = await adminFetch("/api/admin/blob", {
+        method: "POST",
+        body: JSON.stringify({
+          filename: file.name,
+          contentType: file.type || "application/octet-stream",
+        }),
+      });
+      if (!res.ok) {
+        setError("No se pudo generar URL de subida.");
+        setUploading(false);
+        return;
+      }
+      const payload = await res.json();
+      const uploadRes = await fetch(payload.uploadUrl, {
+        method: "PUT",
+        headers: {
+          "x-ms-blob-type": "BlockBlob",
+          "Content-Type": file.type || "application/octet-stream",
+        },
+        body: file,
+      });
+
+      if (!uploadRes.ok) {
+        setError("Error subiendo imagen a Azure Blob.");
+        setUploading(false);
+        return;
+      }
+
+      handleChange("imageUrl", payload.publicUrl);
+    } catch {
+      setError("Error subiendo imagen.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!form.name.trim()) return;
+    setError(null);
+
+    const toNumber = (value: string) => {
+      const cleaned = value.replace(/[^\d]/g, "");
+      return cleaned ? Number(cleaned) : 0;
+    };
+
+    const payload = {
+      name: form.name.trim(),
+      slug: form.slug.trim() || slugify(form.name),
+      price: toNumber(form.price),
+      old_price: form.oldPrice ? toNumber(form.oldPrice) : null,
+      stock: toNumber(form.stock),
+      badge: form.badge.trim() || null,
+      image_url: form.imageUrl.trim() || null,
+      short_description: form.shortDescription.trim() || null,
+      description: form.description.trim() || null,
+      category_id: form.categoryId || null,
+      active: form.active,
+    };
+
+    const url = editingId
+      ? `/api/admin/products/${editingId}`
+      : "/api/admin/products";
+    const method = editingId ? "PATCH" : "POST";
+
+    const res = await adminFetch(url, {
+      method,
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      setError("No se pudo guardar el producto.");
+      return;
+    }
+
+    setForm(emptyForm);
+    setEditingId(null);
+    await loadData();
+  };
+
+  const handleEdit = (product: ProductRow) => {
+    setEditingId(product.id);
+    setForm({
+      name: product.name ?? "",
+      slug: product.slug ?? "",
+      price: String(product.price ?? ""),
+      oldPrice: product.old_price ? String(product.old_price) : "",
+      stock: String(product.stock ?? ""),
+      badge: product.badge ?? "",
+      imageUrl: product.image_url ?? "",
+      shortDescription: product.short_description ?? "",
+      description: product.description ?? "",
+      categoryId: product.category_id ?? "",
+      active: product.active ?? true,
+    });
+  };
+
+  const handleDelete = async (id: string) => {
+    const res = await adminFetch(`/api/admin/products/${id}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      setError("No se pudo eliminar el producto.");
+      return;
+    }
+    await loadData();
+  };
+
+  return (
+    <AdminShell title="Productos">
+      {error ? <p className="text-sm text-red-500">{error}</p> : null}
+      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+        <h2 className="text-lg font-semibold text-slate-900">
+          {editingId ? "Editar producto" : "Nuevo producto"}
+        </h2>
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div className="space-y-3">
+            <input
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              placeholder="Nombre"
+              value={form.name}
+              onChange={(event) => handleChange("name", event.target.value)}
+            />
+            <input
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              placeholder="Slug"
+              value={form.slug}
+              onChange={(event) => handleChange("slug", event.target.value)}
+            />
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                placeholder="Precio"
+                value={form.price}
+                onChange={(event) => handleChange("price", event.target.value)}
+              />
+              <input
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                placeholder="Precio anterior"
+                value={form.oldPrice}
+                onChange={(event) => handleChange("oldPrice", event.target.value)}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                placeholder="Stock"
+                value={form.stock}
+                onChange={(event) => handleChange("stock", event.target.value)}
+              />
+              <input
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                placeholder="Badge"
+                value={form.badge}
+                onChange={(event) => handleChange("badge", event.target.value)}
+              />
+            </div>
+            <select
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              value={form.categoryId}
+              onChange={(event) => handleChange("categoryId", event.target.value)}
+            >
+              <option value="">Sin categoria</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            <textarea
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              rows={3}
+              placeholder="Descripcion corta"
+              value={form.shortDescription}
+              onChange={(event) => handleChange("shortDescription", event.target.value)}
+            />
+            <textarea
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              rows={4}
+              placeholder="Descripcion completa"
+              value={form.description}
+              onChange={(event) => handleChange("description", event.target.value)}
+            />
+          </div>
+          <div className="space-y-3">
+            <div className="rounded-2xl border border-dashed border-slate-200 p-4">
+              <label className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+                Imagen (Azure Blob)
+              </label>
+              <input
+                type="file"
+                className="mt-2 text-sm"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) {
+                    handleImageUpload(file);
+                  }
+                }}
+              />
+              {uploading ? (
+                <p className="mt-2 text-xs text-slate-500">Subiendo...</p>
+              ) : null}
+              {form.imageUrl ? (
+                <div className="mt-3 flex items-center gap-3">
+                  <img
+                    src={form.imageUrl}
+                    alt="Preview"
+                    className="h-20 w-20 rounded-xl object-cover"
+                  />
+                  <span className="text-xs text-slate-500">{form.imageUrl}</span>
+                </div>
+              ) : null}
+            </div>
+            <label className="flex items-center gap-3 text-sm text-slate-600">
+              <input
+                type="checkbox"
+                checked={form.active}
+                onChange={(event) => handleChange("active", event.target.checked)}
+              />
+              Activo
+            </label>
+            <button
+              onClick={handleSubmit}
+              className="rounded-full bg-brand-red px-6 py-3 text-xs font-semibold uppercase tracking-[0.25em] text-white"
+            >
+              {editingId ? "Actualizar" : "Guardar"}
+            </button>
+            {editingId ? (
+              <button
+                onClick={() => {
+                  setEditingId(null);
+                  setForm(emptyForm);
+                }}
+                className="ml-3 text-xs font-semibold uppercase tracking-[0.25em] text-slate-500"
+              >
+                Cancelar
+              </button>
+            ) : null}
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+        <h2 className="text-lg font-semibold text-slate-900">Listado</h2>
+        <div className="mt-4 space-y-3 text-sm text-slate-600">
+          {products.map((product) => (
+            <div
+              key={product.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 px-4 py-3"
+            >
+              <div>
+                <p className="font-semibold text-slate-900">{product.name}</p>
+                <p className="text-xs text-slate-400">
+                  {product.categories?.name ?? "Sin categoria"} • Stock {product.stock} • {product.active ? "Activo" : "Inactivo"}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleEdit(product)}
+                  className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500"
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => handleDelete(product.id)}
+                  className="text-xs font-semibold uppercase tracking-[0.25em] text-red-500"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </AdminShell>
+  );
+}
