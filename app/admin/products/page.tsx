@@ -95,11 +95,13 @@ export default function AdminProductsPage() {
         method: "POST",
         body: JSON.stringify({
           filename: file.name,
-          contentType: file.type || "application/octet-stream",
+          contentType: file.type || "",
+          size: file.size,
         }),
       });
       if (!res.ok) {
-        setError("No se pudo generar URL de subida.");
+        const payload = await res.json().catch(() => null);
+        setError(payload?.error ?? "No se pudo generar URL de subida.");
         setUploading(false);
         return;
       }
@@ -108,13 +110,24 @@ export default function AdminProductsPage() {
         method: "PUT",
         headers: {
           "x-ms-blob-type": "BlockBlob",
-          "Content-Type": file.type || "application/octet-stream",
+          "Content-Type": payload.contentType ?? "application/octet-stream",
         },
         body: file,
       });
 
       if (!uploadRes.ok) {
         setError("Error subiendo imagen a Azure Blob.");
+        setUploading(false);
+        return;
+      }
+
+      const verifyRes = await adminFetch("/api/admin/blob/verify", {
+        method: "POST",
+        body: JSON.stringify({ blobName: payload.blobName }),
+      });
+      if (!verifyRes.ok) {
+        const verifyPayload = await verifyRes.json().catch(() => null);
+        setError(verifyPayload?.error ?? "No se pudo verificar la imagen.");
         setUploading(false);
         return;
       }
