@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "postinstall": "next build",
     "lint": "eslint"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
     "@azure/storage-blob": "^12.30.0",
