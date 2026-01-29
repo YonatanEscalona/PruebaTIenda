@@ -63,6 +63,7 @@ export default function AdminProductsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const loadData = async () => {
     try {
@@ -232,6 +233,21 @@ export default function AdminProductsPage() {
     await loadData();
   };
 
+  const categoryTabs = [
+    { id: "all", label: "Todos" },
+    { id: "none", label: "Sin categoria" },
+    ...categories.map((category) => ({
+      id: category.id,
+      label: category.name,
+    })),
+  ];
+
+  const filteredProducts = products.filter((product) => {
+    if (selectedCategory === "all") return true;
+    if (selectedCategory === "none") return !product.category_id;
+    return product.category_id === selectedCategory;
+  });
+
   return (
     <AdminShell title="Productos">
       {error ? <p className="text-sm text-red-500">{error}</p> : null}
@@ -366,34 +382,58 @@ export default function AdminProductsPage() {
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5">
         <h2 className="text-lg font-semibold text-slate-900">Listado</h2>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {categoryTabs.map((tab) => {
+            const isActive = selectedCategory === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setSelectedCategory(tab.id)}
+                className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] ${
+                  isActive
+                    ? "bg-black text-white"
+                    : "border border-slate-200 bg-white text-slate-500"
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
         <div className="mt-4 space-y-3 text-sm text-slate-600">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 px-4 py-3"
-            >
-              <div>
-                <p className="font-semibold text-slate-900">{product.name}</p>
-                <p className="text-xs text-slate-400">
-                  {product.categories?.name ?? "Sin categoria"} - Stock {product.stock} - {product.active ? "Activo" : "Inactivo"}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleEdit(product)}
-                  className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500"
-                >
-                  Editar
-                </button>
-                <button
-                  onClick={() => handleDelete(product.id)}
-                  className="text-xs font-semibold uppercase tracking-[0.25em] text-red-500"
-                >
-                  Eliminar
-                </button>
-              </div>
+          {filteredProducts.length === 0 ? (
+            <div className="rounded-2xl border border-slate-100 px-4 py-6 text-center text-xs text-slate-500">
+              No hay productos en esta categoria.
             </div>
-          ))}
+          ) : (
+            filteredProducts.map((product) => (
+              <div
+                key={product.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 px-4 py-3"
+              >
+                <div>
+                  <p className="font-semibold text-slate-900">{product.name}</p>
+                  <p className="text-xs text-slate-400">
+                    {product.categories?.name ?? "Sin categoria"} - Stock {product.stock} - {product.active ? "Activo" : "Inactivo"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleEdit(product)}
+                    className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => handleDelete(product.id)}
+                    className="text-xs font-semibold uppercase tracking-[0.25em] text-red-500"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </section>
     </AdminShell>
