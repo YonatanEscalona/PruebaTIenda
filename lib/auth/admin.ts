@@ -1,5 +1,5 @@
 import "server-only";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { getSupabaseAdminConfig, supabaseAdmin } from "@/lib/supabase/admin";
 
 interface AdminCheck {
   ok: boolean;
@@ -19,7 +19,13 @@ const getAdminEmails = () => {
 
 export const requireAdmin = async (req: Request): Promise<AdminCheck> => {
   if (!supabaseAdmin) {
-    return { ok: false, status: 500, error: "Supabase admin not configured" };
+    const { missing } = getSupabaseAdminConfig();
+    const detail = missing.length ? `Missing: ${missing.join(", ")}` : "";
+    return {
+      ok: false,
+      status: 500,
+      error: ["Supabase admin not configured", detail].filter(Boolean).join(". "),
+    };
   }
 
   const authHeader = req.headers.get("authorization") ?? "";

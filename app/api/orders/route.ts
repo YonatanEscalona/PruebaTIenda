@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { getSupabaseAdminConfig, supabaseAdmin } from "@/lib/supabase/admin";
 import { generateOrderCode } from "@/lib/orders";
 
 interface OrderItemInput {
@@ -9,7 +9,14 @@ interface OrderItemInput {
 
 export async function POST(req: Request) {
   if (!supabaseAdmin) {
-    return NextResponse.json({ error: "Supabase not configured" }, { status: 500 });
+    const { missing } = getSupabaseAdminConfig();
+    const detail = missing.length ? `Missing: ${missing.join(", ")}` : "";
+    return NextResponse.json(
+      {
+        error: ["Supabase not configured", detail].filter(Boolean).join(". "),
+      },
+      { status: 500 }
+    );
   }
 
   const body = await req.json();
