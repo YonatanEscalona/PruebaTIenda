@@ -79,7 +79,12 @@ export default function AdminProductsListPage() {
       method: "DELETE",
     });
     if (!res.ok) {
-      setError("No se pudo eliminar el producto.");
+      const payload = await res.json().catch(() => ({}));
+      setError(
+        typeof payload?.error === "string"
+          ? payload.error
+          : "No se pudo eliminar el producto."
+      );
       return;
     }
     await loadData();
