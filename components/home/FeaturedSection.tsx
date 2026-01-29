@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { SlidersHorizontal } from "lucide-react";
 import ProductCard from "./ProductCard";
