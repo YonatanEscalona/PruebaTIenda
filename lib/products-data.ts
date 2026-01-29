@@ -1,4 +1,6 @@
+import "server-only";
 import type { Product } from "@/lib/products";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { supabasePublic } from "@/lib/supabase/public";
 
 interface DbCategory {
@@ -49,11 +51,7 @@ const mapDbProduct = (product: DbProduct): Product => {
   };
 };
 
-export const fetchProducts = async (): Promise<Product[]> => {
-  if (!supabasePublic) {
-    return [];
-  }
-
+const fetchProductsWithClient = async () => {
   const { data, error } = await supabasePublic
     .from("products")
     .select(
@@ -61,21 +59,37 @@ export const fetchProducts = async (): Promise<Product[]> => {
     )
     .eq("active", true)
     .order("created_at", { ascending: false });
-
-  if (error || !data) {
-    return [];
-  }
-
-  return data.map(mapDbProduct);
+  if (error || !data) return null;
+  return data;
 };
 
-export const fetchProductBySlug = async (
-  slug: string
-): Promise<Product | null> => {
-  if (!supabasePublic) {
-    return null;
+const fetchProductsWithAdmin = async () => {
+  if (!supabaseAdmin) return null;
+  const { data, error } = await supabaseAdmin
+    .from("products")
+    .select(
+      "id, slug, name, short_description, description, price, old_price, rating, badge, image_url, stock, active, category_id, categories(name)"
+    )
+    .eq("active", true)
+    .order("created_at", { ascending: false });
+  if (error || !data) return null;
+  return data;
+};
+
+export const fetchProducts = async (): Promise<Product[]> => {
+  if (supabasePublic) {
+    const data = await fetchProductsWithClient();
+    if (data) {
+      return data.map(mapDbProduct);
+    }
   }
 
+  const adminData = await fetchProductsWithAdmin();
+  if (!adminData) return [];
+  return adminData.map(mapDbProduct);
+};
+
+const fetchProductBySlugWithClient = async (slug: string) => {
   const { data, error } = await supabasePublic
     .from("products")
     .select(
@@ -83,10 +97,35 @@ export const fetchProductBySlug = async (
     )
     .eq("slug", slug)
     .maybeSingle();
+  if (error || !data) return null;
+  return data as DbProduct;
+};
 
-  if (error || !data) {
-    return null;
+const fetchProductBySlugWithAdmin = async (slug: string) => {
+  if (!supabaseAdmin) return null;
+  const { data, error } = await supabaseAdmin
+    .from("products")
+    .select(
+      "id, slug, name, short_description, description, price, old_price, rating, badge, image_url, stock, active, category_id, categories(name)"
+    )
+    .eq("slug", slug)
+    .eq("active", true)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data as DbProduct;
+};
+
+export const fetchProductBySlug = async (
+  slug: string
+): Promise<Product | null> => {
+  if (supabasePublic) {
+    const data = await fetchProductBySlugWithClient(slug);
+    if (data) {
+      return mapDbProduct(data);
+    }
   }
 
-  return mapDbProduct(data as DbProduct);
+  const adminData = await fetchProductBySlugWithAdmin(slug);
+  if (!adminData) return null;
+  return mapDbProduct(adminData);
 };
