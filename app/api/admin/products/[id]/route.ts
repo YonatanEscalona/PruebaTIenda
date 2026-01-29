@@ -55,6 +55,31 @@ export async function PATCH(req: Request, { params }: Params) {
   return NextResponse.json(data);
 }
 
+export async function GET(req: Request, { params }: Params) {
+  const { id } = await params;
+  const auth = await requireAdmin(req);
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+  if (!supabaseAdmin) {
+    return NextResponse.json({ error: "Supabase not configured" }, { status: 500 });
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from("products")
+    .select(
+      "id, name, slug, price, old_price, stock, active, badge, image_url, short_description, description, category_id, categories(name)"
+    )
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json(data);
+}
+
 export async function DELETE(req: Request, { params }: Params) {
   const { id } = await params;
   const auth = await requireAdmin(req);
