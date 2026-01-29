@@ -1,5 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
+import Link from "next/link";
 interface ProductCardProps {
+  slug: string;
   name: string;
   price: string;
   oldPrice?: string;
@@ -9,6 +11,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({
+  slug,
   name,
   price,
   oldPrice,
@@ -30,7 +33,10 @@ export default function ProductCard({
           {badge}
         </span>
       ) : null}
-      <div className="mt-6 flex items-center justify-center rounded-2xl bg-slate-50 p-4">
+      <Link
+        href={`/producto/${slug}`}
+        className="mt-6 flex items-center justify-center rounded-2xl bg-slate-50 p-4"
+      >
         {image ? (
           <img
             src={image}
@@ -40,9 +46,11 @@ export default function ProductCard({
         ) : (
           <div className="h-40 w-40 rounded-2xl bg-slate-200" />
         )}
-      </div>
+      </Link>
       <div className="mt-4 space-y-2">
-        <p className="text-sm font-semibold text-slate-900">{name}</p>
+        <Link href={`/producto/${slug}`}>
+          <p className="text-sm font-semibold text-slate-900">{name}</p>
+        </Link>
         <div className="flex items-center gap-2 text-xs text-slate-500">
           <span className="text-yellow-400">?</span>
           <span>{rating}</span>
@@ -54,9 +62,13 @@ export default function ProductCard({
             ) : null}
             <p className="text-base font-semibold text-brand-red">{price}</p>
           </div>
-          <button className="grid h-9 w-9 place-items-center rounded-full bg-black text-white">
+          <Link
+            href={`/producto/${slug}`}
+            aria-label={`Ver ${name}`}
+            className="grid h-9 w-9 place-items-center rounded-full bg-black text-white"
+          >
             +
-          </button>
+          </Link>
         </div>
       </div>
     </div>

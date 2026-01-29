@@ -1,13 +1,19 @@
 export const dynamic = "force-dynamic";
 
-import { Car, Gauge, Grid2x2, Lightbulb, Speaker } from "lucide-react";
-import BrandsSection from "@/components/home/BrandsSection";
+import {
+  Grid2x2,
+  Headphones,
+  Home,
+  Laptop,
+  Lightbulb,
+  Package,
+  Smartphone,
+} from "lucide-react";
 import BottomNav from "@/components/home/BottomNav";
 import CategoriesSection from "@/components/home/CategoriesSection";
 import FeaturedSection from "@/components/home/FeaturedSection";
 import Header from "@/components/home/Header";
 import Hero from "@/components/home/Hero";
-import NewsletterSection from "@/components/home/NewsletterSection";
 import TopBar from "@/components/home/TopBar";
 import WhatsAppButton from "@/components/home/WhatsAppButton";
 import { formatCurrency } from "@/lib/format";
@@ -15,20 +21,30 @@ import { fetchProducts } from "@/lib/products-data";
 import { fetchCategories } from "@/lib/categories-data";
 
 const defaultCategories = [
-  { label: "Exterior", icon: Car },
-  { label: "Audio", icon: Speaker },
-  { label: "Luces", icon: Lightbulb },
-  { label: "Motor", icon: Gauge },
+  { label: "Hogar", icon: Home },
+  { label: "Tecnologia", icon: Laptop },
+  { label: "Celulares", icon: Smartphone },
+  { label: "Audio", icon: Headphones },
+  { label: "Iluminacion", icon: Lightbulb },
+  { label: "Accesorios", icon: Package },
 ];
 
-const iconMap: Record<string, typeof Car> = {
-  exterior: Car,
-  audio: Speaker,
+const iconMap: Record<string, typeof Grid2x2> = {
+  hogar: Home,
+  casa: Home,
+  tecnologia: Laptop,
+  "tecnologia-y-computacion": Laptop,
+  computacion: Laptop,
+  informatica: Laptop,
+  celulares: Smartphone,
+  telefonia: Smartphone,
+  audio: Headphones,
+  sonido: Headphones,
+  iluminacion: Lightbulb,
   luces: Lightbulb,
-  motor: Gauge,
+  accesorios: Package,
+  otros: Package,
 };
-
-const brands = ["Sparco", "Momo", "Pioneer", "JBL"];
 
 export default async function Home() {
   const [products, categoriesData] = await Promise.all([
@@ -45,6 +61,7 @@ export default async function Home() {
     : defaultCategories;
 
   const featuredProducts = products.slice(0, 4).map((product) => ({
+    slug: product.slug,
     name: product.name,
     rating: product.rating,
     price: formatCurrency(product.price),
@@ -61,8 +78,6 @@ export default async function Home() {
         <Hero />
         <CategoriesSection categories={categories} />
         <FeaturedSection products={featuredProducts} />
-        <BrandsSection brands={brands} />
-        <NewsletterSection />
       </main>
       <WhatsAppButton />
       <BottomNav />

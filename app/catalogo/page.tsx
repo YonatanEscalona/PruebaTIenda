@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import StoreShell from "@/components/store/StoreShell";
 import CatalogProducts from "@/components/store/CatalogProducts";
 

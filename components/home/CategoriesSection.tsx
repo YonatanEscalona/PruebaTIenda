@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 
 interface Category {
@@ -18,9 +19,12 @@ export default function CategoriesSection({
         <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-black">
           Categorias
         </h2>
-        <button className="text-xs font-semibold uppercase tracking-[0.25em] text-brand-red">
+        <Link
+          href="/catalogo"
+          className="text-xs font-semibold uppercase tracking-[0.25em] text-brand-red"
+        >
           Ver todo
-        </button>
+        </Link>
       </div>
       <div className="mt-6 grid grid-cols-4 gap-4 sm:grid-cols-6">
         {categories.map((category) => {
@@ -37,9 +41,12 @@ export default function CategoriesSection({
           );
         })}
       </div>
-      <button className="mt-6 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-slate-700">
+      <Link
+        href="/catalogo"
+        className="mt-6 block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.3em] text-slate-700"
+      >
         Ver todas las categorias
-      </button>
+      </Link>
     </section>
   );
 }
