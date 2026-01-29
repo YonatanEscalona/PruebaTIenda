@@ -15,13 +15,16 @@ export default function DealSpotlight({ product }: DealSpotlightProps) {
     return null;
   }
 
+  const oldPriceValue =
+    typeof product.oldPrice === "number" ? product.oldPrice : null;
   const hasDiscount =
-    typeof product.oldPrice === "number" &&
-    product.oldPrice > 0 &&
-    product.oldPrice > product.price;
-  const discount = hasDiscount
-    ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
-    : null;
+    typeof oldPriceValue === "number" &&
+    oldPriceValue > 0 &&
+    oldPriceValue > product.price;
+  const discount =
+    hasDiscount && oldPriceValue
+      ? Math.round(((oldPriceValue - product.price) / oldPriceValue) * 100)
+      : null;
 
   return (
     <section
@@ -46,9 +49,9 @@ export default function DealSpotlight({ product }: DealSpotlightProps) {
               <p className="text-2xl font-semibold text-brand-red">
                 {formatCurrency(product.price)}
               </p>
-              {hasDiscount ? (
+              {hasDiscount && oldPriceValue ? (
                 <p className="text-sm text-slate-400 line-through">
-                  {formatCurrency(product.oldPrice ?? 0)}
+                  {formatCurrency(oldPriceValue)}
                 </p>
               ) : null}
               {discount ? (
