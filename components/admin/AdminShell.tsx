@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 
@@ -11,6 +11,7 @@ interface AdminShellProps {
 }
 
 export default function AdminShell({ title, children }: AdminShellProps) {
+  const pathname = usePathname();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -44,6 +45,13 @@ export default function AdminShell({ title, children }: AdminShellProps) {
     return <div className="p-8 text-sm">Cargando...</div>;
   }
 
+  const navItems = [
+    { href: "/admin", label: "Dashboard" },
+    { href: "/admin/products", label: "Productos" },
+    { href: "/admin/categories", label: "Categorias" },
+    { href: "/admin/orders", label: "Pedidos" },
+  ];
+
   return (
     <div className="min-h-screen bg-[#f6f7f9] px-6 py-10">
       <div className="mx-auto w-full max-w-6xl space-y-8">
@@ -73,21 +81,26 @@ export default function AdminShell({ title, children }: AdminShellProps) {
           </div>
         </div>
 
-        <nav className="flex flex-wrap gap-3">
-          {[
-            { href: "/admin", label: "Dashboard" },
-            { href: "/admin/products", label: "Productos" },
-            { href: "/admin/categories", label: "Categorias" },
-            { href: "/admin/orders", label: "Pedidos" },
-          ].map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-600"
-            >
-              {item.label}
-            </Link>
-          ))}
+        <nav className="flex flex-wrap gap-2">
+          {navItems.map((item) => {
+            const isActive =
+              item.href === "/admin"
+                ? pathname === "/admin"
+                : pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.25em] ${
+                  isActive
+                    ? "bg-brand-red text-white"
+                    : "bg-slate-100 text-slate-600"
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         {children}

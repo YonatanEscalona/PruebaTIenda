@@ -255,37 +255,60 @@ export default function AdminProductsPage() {
         <h2 className="text-lg font-semibold text-slate-900">
           {editingId ? "Editar producto" : "Nuevo producto"}
         </h2>
-        <div className="mt-4 grid gap-4">
-          <div className="space-y-3">
+        <div className="mt-4 space-y-5">
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+              Nombre del producto
+            </label>
             <input
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-              placeholder="Nombre"
+              className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              placeholder="Ej. Zapatillas Running Pro"
               value={form.name}
               onChange={(event) => handleChange("name", event.target.value)}
             />
-            <div className="grid grid-cols-2 gap-3">
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+                Precio
+              </label>
               <input
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                placeholder="Precio"
+                className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                placeholder="0.00"
                 value={form.price}
                 onChange={(event) => handleChange("price", event.target.value)}
               />
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+                Precio anterior
+              </label>
               <input
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                placeholder="Precio anterior"
+                className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                placeholder="0.00"
                 value={form.oldPrice}
                 onChange={(event) => handleChange("oldPrice", event.target.value)}
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+                Stock
+              </label>
               <input
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                placeholder="Stock"
+                className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                placeholder="0"
                 value={form.stock}
                 onChange={(event) => handleChange("stock", event.target.value)}
               />
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+                Etiqueta
+              </label>
               <select
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
                 value={form.badge}
                 onChange={(event) => handleChange("badge", event.target.value)}
               >
@@ -295,8 +318,13 @@ export default function AdminProductsPage() {
                 <option value="Hot">Hot</option>
               </select>
             </div>
+          </div>
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+              Categoria
+            </label>
             <select
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
               value={form.categoryId}
               onChange={(event) => handleChange("categoryId", event.target.value)}
             >
@@ -307,29 +335,43 @@ export default function AdminProductsPage() {
                 </option>
               ))}
             </select>
+          </div>
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+              Descripcion corta
+            </label>
             <textarea
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
               rows={3}
-              placeholder="Descripcion corta"
+              placeholder="Breve resumen del producto..."
               value={form.shortDescription}
               onChange={(event) => handleChange("shortDescription", event.target.value)}
             />
+          </div>
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+              Descripcion completa
+            </label>
             <textarea
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-              rows={4}
-              placeholder="Descripcion completa"
+              className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              rows={5}
+              placeholder="Escribe aqui los detalles del producto..."
               value={form.description}
               onChange={(event) => handleChange("description", event.target.value)}
             />
           </div>
-          <div className="space-y-3">
-            <div className="rounded-2xl border border-dashed border-slate-200 p-4">
-              <label className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
-                Imagen (Azure Blob)
-              </label>
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+              Imagen (Azure Blob)
+            </label>
+            <label className="mt-2 flex cursor-pointer flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-6 py-8 text-center text-sm text-slate-500">
+              <span className="text-brand-red">Elegir archivo</span> o arrastra aqui
+              <span className="mt-1 text-xs text-slate-400">
+                {form.imageUrl ? "Imagen cargada" : "No se ha seleccionado ningun archivo"}
+              </span>
               <input
                 type="file"
-                className="mt-2 text-sm"
+                className="sr-only"
                 onChange={(event) => {
                   const file = event.target.files?.[0];
                   if (file) {
@@ -337,33 +379,40 @@ export default function AdminProductsPage() {
                   }
                 }}
               />
-              {uploading ? (
-                <p className="mt-2 text-xs text-slate-500">Subiendo...</p>
-              ) : null}
-              {form.imageUrl ? (
-                <div className="mt-3 flex items-center gap-3">
-                  <img
-                    src={form.imageUrl}
-                    alt="Preview"
-                    className="h-20 w-20 rounded-xl object-cover"
-                  />
-                  <span className="text-xs text-slate-500">{form.imageUrl}</span>
-                </div>
-              ) : null}
-            </div>
-            <label className="flex items-center gap-3 text-sm text-slate-600">
+            </label>
+            {uploading ? (
+              <p className="mt-2 text-xs text-slate-500">Subiendo...</p>
+            ) : null}
+            {form.imageUrl ? (
+              <div className="mt-3 flex items-center gap-3">
+                <img
+                  src={form.imageUrl}
+                  alt="Preview"
+                  className="h-20 w-20 rounded-xl object-cover"
+                />
+                <span className="text-xs text-slate-500">{form.imageUrl}</span>
+              </div>
+            ) : null}
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-slate-700">Activo</span>
+            <label className="relative inline-flex cursor-pointer items-center">
               <input
                 type="checkbox"
+                className="peer sr-only"
                 checked={form.active}
                 onChange={(event) => handleChange("active", event.target.checked)}
               />
-              Activo
+              <div className="h-6 w-11 rounded-full bg-slate-200 peer-checked:bg-brand-red" />
+              <div className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5" />
             </label>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={handleSubmit}
               className="rounded-full bg-brand-red px-6 py-3 text-xs font-semibold uppercase tracking-[0.25em] text-white"
             >
-              {editingId ? "Actualizar" : "Guardar"}
+              {editingId ? "Actualizar producto" : "Guardar producto"}
             </button>
             {editingId ? (
               <button
@@ -371,7 +420,7 @@ export default function AdminProductsPage() {
                   setEditingId(null);
                   setForm(emptyForm);
                 }}
-                className="ml-3 text-xs font-semibold uppercase tracking-[0.25em] text-slate-500"
+                className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500"
               >
                 Cancelar
               </button>
