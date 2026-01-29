@@ -9,6 +9,7 @@ export interface Category {
 }
 
 const fetchCategoriesWithClient = async () => {
+  if (!supabasePublic) return null;
   const { data, error } = await supabasePublic
     .from("categories")
     .select("id, name, slug")

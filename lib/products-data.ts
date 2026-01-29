@@ -52,6 +52,7 @@ const mapDbProduct = (product: DbProduct): Product => {
 };
 
 const fetchProductsWithClient = async () => {
+  if (!supabasePublic) return null;
   const { data, error } = await supabasePublic
     .from("products")
     .select(
@@ -90,6 +91,7 @@ export const fetchProducts = async (): Promise<Product[]> => {
 };
 
 const fetchProductBySlugWithClient = async (slug: string) => {
+  if (!supabasePublic) return null;
   const { data, error } = await supabasePublic
     .from("products")
     .select(
