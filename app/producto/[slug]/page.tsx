@@ -9,13 +9,14 @@ import { formatCurrency } from "@/lib/format";
 import { fetchProductBySlug } from "@/lib/products-data";
 
 interface ProductDetailPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export default async function ProductDetailPage({
   params,
 }: ProductDetailPageProps) {
-  const product = await fetchProductBySlug(params.slug);
+  const { slug } = await params;
+  const product = await fetchProductBySlug(slug);
 
   if (!product) {
     notFound();
