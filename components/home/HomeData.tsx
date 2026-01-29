@@ -14,7 +14,6 @@ import CategoriesSection from "@/components/home/CategoriesSection";
 import CollectionsSection from "@/components/home/CollectionsSection";
 import DealSpotlight from "@/components/home/DealSpotlight";
 import FeaturedSection from "@/components/home/FeaturedSection";
-import ValueProps from "@/components/home/ValueProps";
 import { formatCurrency } from "@/lib/format";
 import type { Product } from "@/lib/products";
 
@@ -151,7 +150,6 @@ export default function HomeData() {
 
   return (
     <>
-      <ValueProps />
       <CategoriesSection categories={categories} />
       <CollectionsSection />
       {loading ? (
