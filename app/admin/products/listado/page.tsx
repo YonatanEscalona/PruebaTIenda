@@ -90,6 +90,27 @@ export default function AdminProductsListPage() {
     await loadData();
   };
 
+  const handleHardDelete = async (id: string) => {
+    const confirmed = window.confirm(
+      "Esto eliminara el producto y sus items de pedidos. Esta accion no se puede deshacer. ¿Continuar?"
+    );
+    if (!confirmed) return;
+
+    const res = await adminFetch(`/api/admin/products/${id}/hard-delete`, {
+      method: "POST",
+    });
+    if (!res.ok) {
+      const payload = await res.json().catch(() => ({}));
+      setError(
+        typeof payload?.error === "string"
+          ? payload.error
+          : "No se pudo eliminar el producto."
+      );
+      return;
+    }
+    await loadData();
+  };
+
   const categoryTabs = [
     { id: "all", label: "Todos" },
     { id: "none", label: "Sin categoria" },
@@ -170,6 +191,12 @@ export default function AdminProductsListPage() {
                     className="text-xs font-semibold uppercase tracking-[0.25em] text-red-500"
                   >
                     Desactivar
+                  </button>
+                  <button
+                    onClick={() => handleHardDelete(product.id)}
+                    className="text-xs font-semibold uppercase tracking-[0.25em] text-red-700"
+                  >
+                    Borrar total
                   </button>
                 </div>
               </div>
