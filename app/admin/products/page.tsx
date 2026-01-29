@@ -70,12 +70,33 @@ export default function AdminProductsPage() {
         adminFetch("/api/admin/products"),
         adminFetch("/api/admin/categories"),
       ]);
-      const productsData = await productsRes.json();
-      const categoriesData = await categoriesRes.json();
-      setProducts(productsData ?? []);
-      setCategories(categoriesData ?? []);
-    } catch {
-      setError("No se pudo cargar productos.");
+      const parseList = async (res: Response, label: string) => {
+        if (!res.ok) {
+          const payload = await res.json().catch(() => ({}));
+          const message =
+            typeof payload?.error === "string"
+              ? payload.error
+              : `No se pudo cargar ${label}.`;
+          throw new Error(message);
+        }
+        const data = await res.json();
+        if (!Array.isArray(data)) {
+          throw new Error(`Respuesta invalida para ${label}.`);
+        }
+        return data;
+      };
+      const [productsData, categoriesData] = await Promise.all([
+        parseList(productsRes, "productos"),
+        parseList(categoriesRes, "categorias"),
+      ]);
+      setProducts(productsData);
+      setCategories(categoriesData);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "No se pudo cargar productos.";
+      setError(message);
+      setProducts([]);
+      setCategories([]);
     }
   };
 

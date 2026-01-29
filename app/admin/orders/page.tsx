@@ -40,10 +40,24 @@ export default function AdminOrdersPage() {
   const loadOrders = async () => {
     try {
       const res = await adminFetch("/api/admin/orders");
+      if (!res.ok) {
+        const payload = await res.json().catch(() => ({}));
+        setError(payload?.error ?? "No se pudo cargar pedidos.");
+        setOrders([]);
+        return;
+      }
       const data = await res.json();
-      setOrders(data ?? []);
-    } catch {
-      setError("No se pudo cargar pedidos.");
+      if (!Array.isArray(data)) {
+        setError("Respuesta invalida de pedidos.");
+        setOrders([]);
+        return;
+      }
+      setOrders(data);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "No se pudo cargar pedidos.";
+      setError(message);
+      setOrders([]);
     }
   };
 

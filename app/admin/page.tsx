@@ -28,9 +28,27 @@ export default function AdminPage() {
           adminFetch("/api/admin/categories"),
           adminFetch("/api/admin/orders"),
         ]);
-        const products = await productsRes.json();
-        const categories = await categoriesRes.json();
-        const orders = await ordersRes.json();
+        const parseList = async (res: Response, label: string) => {
+          if (!res.ok) {
+            const payload = await res.json().catch(() => ({}));
+            const message =
+              typeof payload?.error === "string"
+                ? payload.error
+                : `No se pudo cargar ${label}.`;
+            throw new Error(message);
+          }
+          const data = await res.json();
+          if (!Array.isArray(data)) {
+            throw new Error(`Respuesta invalida para ${label}.`);
+          }
+          return data;
+        };
+
+        const [products, categories, orders] = await Promise.all([
+          parseList(productsRes, "productos"),
+          parseList(categoriesRes, "categorias"),
+          parseList(ordersRes, "pedidos"),
+        ]);
 
         const pendingCount = (orders ?? []).filter(
           (order: { status: string }) => order.status === "PENDIENTE"
@@ -42,8 +60,10 @@ export default function AdminPage() {
           orders: orders?.length ?? 0,
           pending: pendingCount,
         });
-      } catch {
-        setError("No se pudo cargar el resumen.");
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "No se pudo cargar el resumen.";
+        setError(message);
       }
     };
 

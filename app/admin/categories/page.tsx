@@ -21,10 +21,24 @@ export default function AdminCategoriesPage() {
   const loadCategories = async () => {
     try {
       const res = await adminFetch("/api/admin/categories");
+      if (!res.ok) {
+        const payload = await res.json().catch(() => ({}));
+        setError(payload?.error ?? "No se pudo cargar categorias.");
+        setCategories([]);
+        return;
+      }
       const data = await res.json();
-      setCategories(data ?? []);
-    } catch {
-      setError("No se pudo cargar categorias.");
+      if (!Array.isArray(data)) {
+        setError("Respuesta invalida de categorias.");
+        setCategories([]);
+        return;
+      }
+      setCategories(data);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "No se pudo cargar categorias.";
+      setError(message);
+      setCategories([]);
     }
   };
 
