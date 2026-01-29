@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import {
   Grid2x2,
   Headphones,
-  Home,
+  Home as HomeIcon,
   Laptop,
   Lightbulb,
   Package,
@@ -21,7 +21,7 @@ import { fetchProducts } from "@/lib/products-data";
 import { fetchCategories } from "@/lib/categories-data";
 
 const defaultCategories = [
-  { label: "Hogar", icon: Home },
+  { label: "Hogar", icon: HomeIcon },
   { label: "Tecnologia", icon: Laptop },
   { label: "Celulares", icon: Smartphone },
   { label: "Audio", icon: Headphones },
@@ -30,8 +30,8 @@ const defaultCategories = [
 ];
 
 const iconMap: Record<string, typeof Grid2x2> = {
-  hogar: Home,
-  casa: Home,
+  hogar: HomeIcon,
+  casa: HomeIcon,
   tecnologia: Laptop,
   "tecnologia-y-computacion": Laptop,
   computacion: Laptop,
