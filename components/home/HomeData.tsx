@@ -11,7 +11,6 @@ import {
   Smartphone,
 } from "lucide-react";
 import CategoriesSection from "@/components/home/CategoriesSection";
-import CollectionsSection from "@/components/home/CollectionsSection";
 import DealSpotlight from "@/components/home/DealSpotlight";
 import FeaturedSection from "@/components/home/FeaturedSection";
 import { formatCurrency } from "@/lib/format";
@@ -139,6 +138,13 @@ export default function HomeData() {
   }, [products]);
 
   const dealProduct = useMemo(() => {
+    const featured = products.find(
+      (product) =>
+        typeof product.badge === "string" &&
+        product.badge.toLowerCase() === "oferta destacada"
+    );
+    if (featured) return featured;
+
     const withDiscount = products.find(
       (product) =>
         typeof product.oldPrice === "number" &&
@@ -151,7 +157,6 @@ export default function HomeData() {
   return (
     <>
       <CategoriesSection categories={categories} />
-      <CollectionsSection />
       {loading ? (
         <div className="mx-auto w-full max-w-6xl px-6">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

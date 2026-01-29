@@ -239,19 +239,13 @@ export default function AdminProductsPage() {
         <h2 className="text-lg font-semibold text-slate-900">
           {editingId ? "Editar producto" : "Nuevo producto"}
         </h2>
-        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+        <div className="mt-4 grid gap-4">
           <div className="space-y-3">
             <input
               className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
               placeholder="Nombre"
               value={form.name}
               onChange={(event) => handleChange("name", event.target.value)}
-            />
-            <input
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-              placeholder="Slug"
-              value={form.slug}
-              onChange={(event) => handleChange("slug", event.target.value)}
             />
             <div className="grid grid-cols-2 gap-3">
               <input
@@ -274,12 +268,16 @@ export default function AdminProductsPage() {
                 value={form.stock}
                 onChange={(event) => handleChange("stock", event.target.value)}
               />
-              <input
+              <select
                 className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                placeholder="Badge"
                 value={form.badge}
                 onChange={(event) => handleChange("badge", event.target.value)}
-              />
+              >
+                <option value="">Sin etiqueta</option>
+                <option value="Oferta destacada">Oferta destacada</option>
+                <option value="Nuevo">Nuevo</option>
+                <option value="Hot">Hot</option>
+              </select>
             </div>
             <select
               className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
@@ -377,7 +375,7 @@ export default function AdminProductsPage() {
               <div>
                 <p className="font-semibold text-slate-900">{product.name}</p>
                 <p className="text-xs text-slate-400">
-                  {product.categories?.name ?? "Sin categoria"} • Stock {product.stock} • {product.active ? "Activo" : "Inactivo"}
+                  {product.categories?.name ?? "Sin categoria"} - Stock {product.stock} - {product.active ? "Activo" : "Inactivo"}
                 </p>
               </div>
               <div className="flex items-center gap-2">
