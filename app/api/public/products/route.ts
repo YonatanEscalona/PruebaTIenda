@@ -1,4 +1,10 @@
 import { NextResponse } from "next/server";
+import {
+  BlobSASPermissions,
+  SASProtocol,
+  StorageSharedKeyCredential,
+  generateBlobSASQueryParameters,
+} from "@azure/storage-blob";
 import { getSupabaseAdminConfig, supabaseAdmin } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -32,6 +38,46 @@ const resolveCategoryName = (product: DbProduct) => {
   return categories?.name ?? "Sin categoria";
 };
 
+const account = process.env.AZURE_STORAGE_ACCOUNT ?? "";
+const key = process.env.AZURE_STORAGE_KEY ?? "";
+const container = process.env.AZURE_STORAGE_CONTAINER ?? "";
+const hasAzure = Boolean(account && key && container);
+const credential = hasAzure ? new StorageSharedKeyCredential(account, key) : null;
+const baseHost = hasAzure ? `${account}.blob.core.windows.net` : "";
+const basePath = hasAzure ? `/${container}/` : "";
+
+const signImageUrl = (raw: string | null) => {
+  if (!raw || !credential) return raw ?? "";
+  try {
+    const parsed = new URL(raw);
+    if (parsed.hostname !== baseHost || !parsed.pathname.startsWith(basePath)) {
+      return raw;
+    }
+
+    const blobName = parsed.pathname.slice(basePath.length);
+    if (!blobName) return raw;
+
+    const startsOn = new Date(Date.now() - 2 * 60 * 1000);
+    const expiresOn = new Date(Date.now() + 2 * 60 * 60 * 1000);
+
+    const sas = generateBlobSASQueryParameters(
+      {
+        containerName: container,
+        blobName,
+        permissions: BlobSASPermissions.parse("r"),
+        protocol: SASProtocol.Https,
+        startsOn,
+        expiresOn,
+      },
+      credential
+    ).toString();
+
+    return `${parsed.origin}${parsed.pathname}?${sas}`;
+  } catch {
+    return raw;
+  }
+};
+
 const mapDbProduct = (product: DbProduct) => ({
   id: product.id,
   slug: product.slug,
@@ -41,7 +87,7 @@ const mapDbProduct = (product: DbProduct) => ({
   oldPrice: product.old_price ? Number(product.old_price) : undefined,
   rating: product.rating ? Number(product.rating) : 5,
   badge: product.badge ?? undefined,
-  image: product.image_url ?? "",
+  image: signImageUrl(product.image_url),
   shortDescription: product.short_description ?? "",
   description: product.description ?? "",
   stock: product.stock ?? 0,
