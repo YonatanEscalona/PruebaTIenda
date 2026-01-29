@@ -16,7 +16,7 @@ export default function CategoriesSection({
   categories,
 }: CategoriesSectionProps) {
   return (
-    <section className="mx-auto w-full max-w-6xl px-6">
+    <section id="categorias" className="mx-auto w-full max-w-6xl px-6">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-black">
           Categorias

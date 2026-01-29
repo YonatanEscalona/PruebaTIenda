@@ -11,7 +11,10 @@ import {
   Smartphone,
 } from "lucide-react";
 import CategoriesSection from "@/components/home/CategoriesSection";
+import CollectionsSection from "@/components/home/CollectionsSection";
+import DealSpotlight from "@/components/home/DealSpotlight";
 import FeaturedSection from "@/components/home/FeaturedSection";
+import ValueProps from "@/components/home/ValueProps";
 import { formatCurrency } from "@/lib/format";
 import type { Product } from "@/lib/products";
 
@@ -122,17 +125,61 @@ export default function HomeData() {
     [products]
   );
 
+  const latestProducts = useMemo(() => {
+    const selected = products.slice(4, 10);
+    const source = selected.length > 0 ? selected : products.slice(0, 6);
+    return source.map((product) => ({
+      slug: product.slug,
+      name: product.name,
+      rating: product.rating,
+      price: formatCurrency(product.price),
+      oldPrice: product.oldPrice ? formatCurrency(product.oldPrice) : undefined,
+      badge: product.badge,
+      image: product.image,
+    }));
+  }, [products]);
+
+  const dealProduct = useMemo(() => {
+    const withDiscount = products.find(
+      (product) =>
+        typeof product.oldPrice === "number" &&
+        product.oldPrice > 0 &&
+        product.oldPrice > product.price
+    );
+    return withDiscount ?? products[0] ?? null;
+  }, [products]);
+
   return (
     <>
+      <ValueProps />
       <CategoriesSection categories={categories} />
+      <CollectionsSection />
       {loading ? (
         <div className="mx-auto w-full max-w-6xl px-6">
-          <div className="rounded-3xl bg-white p-6 text-sm text-slate-600 shadow-sm ring-1 ring-black/5">
-            Cargando productos...
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[0, 1, 2].map((item) => (
+              <div
+                key={item}
+                className="h-40 rounded-3xl bg-white/70 shadow-sm ring-1 ring-black/5"
+              />
+            ))}
           </div>
         </div>
       ) : (
-        <FeaturedSection products={featuredProducts} />
+        <>
+          <DealSpotlight product={dealProduct} />
+          <FeaturedSection
+            products={featuredProducts}
+            description="Seleccion curada con lo mas vendido del momento."
+          />
+          <FeaturedSection
+            products={latestProducts}
+            eyebrow="Recien llegados"
+            title="Nuevas colecciones"
+            description="Descubre lo ultimo en hogar, tecnologia y audio."
+            emptyMessage="Aun no hay nuevas colecciones publicadas."
+          />
+        </>
       )}
       {error ? (
         <div className="mx-auto w-full max-w-6xl px-6">
