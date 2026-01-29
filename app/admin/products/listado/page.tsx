@@ -118,6 +118,9 @@ export default function AdminProductsListPage() {
             Nuevo producto
           </button>
         </div>
+        <p className="mt-3 text-xs text-slate-500">
+          Si un producto tiene pedidos asociados, se desactivara en lugar de eliminarse.
+        </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {categoryTabs.map((tab) => {
             const isActive = selectedCategory === tab.id;
@@ -166,7 +169,7 @@ export default function AdminProductsListPage() {
                     onClick={() => handleDelete(product.id)}
                     className="text-xs font-semibold uppercase tracking-[0.25em] text-red-500"
                   >
-                    Eliminar
+                    Desactivar
                   </button>
                 </div>
               </div>

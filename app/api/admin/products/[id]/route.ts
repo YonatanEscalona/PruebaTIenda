@@ -96,6 +96,31 @@ export async function DELETE(req: Request, { params }: Params) {
     .eq("id", id);
 
   if (error) {
+    const message = error.message ?? "";
+    const isForeignKey =
+      message.includes("order_items_product_id_fkey") ||
+      message.toLowerCase().includes("violates foreign key constraint");
+
+    if (isForeignKey) {
+      const { error: archiveError } = await supabaseAdmin
+        .from("products")
+        .update({ active: false })
+        .eq("id", id);
+
+      if (archiveError) {
+        return NextResponse.json(
+          { error: "No se pudo desactivar el producto." },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        archived: true,
+        message: "Producto con pedidos: se desactivo.",
+      });
+    }
+
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
