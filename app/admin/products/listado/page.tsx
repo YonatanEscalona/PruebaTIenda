@@ -134,7 +134,7 @@ export default function AdminProductsListPage() {
           <h2 className="text-lg font-semibold text-slate-900">Listado</h2>
           <button
             onClick={() => router.push("/admin/products")}
-            className="rounded-full border border-slate-200 bg-white px-5 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-600"
+            className="rounded-full bg-brand-red px-5 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white shadow-sm transition hover:bg-brand-red/90"
           >
             Nuevo producto
           </button>
@@ -182,19 +182,19 @@ export default function AdminProductsListPage() {
                     onClick={() =>
                       router.push(`/admin/products?edit=${product.id}`)
                     }
-                    className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500"
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
                   >
                     Editar
                   </button>
                   <button
                     onClick={() => handleDelete(product.id)}
-                    className="text-xs font-semibold uppercase tracking-[0.25em] text-red-500"
+                    className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-700 transition hover:border-amber-300 hover:bg-amber-100"
                   >
                     Desactivar
                   </button>
                   <button
                     onClick={() => handleHardDelete(product.id)}
-                    className="text-xs font-semibold uppercase tracking-[0.25em] text-red-700"
+                    className="rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-red-700 transition hover:border-red-300 hover:bg-red-100"
                   >
                     Borrar total
                   </button>
