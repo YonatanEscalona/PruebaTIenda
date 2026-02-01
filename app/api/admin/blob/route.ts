@@ -1,9 +1,9 @@
+export const runtime = "edge";
+
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth/admin";
 import { sanitizeFileName } from "@/lib/slug";
 import { getUploadSignedUrl, getPublicUrl } from "@/lib/r2";
-
-export const runtime = "nodejs";
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10MB
 

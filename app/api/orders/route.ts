@@ -1,3 +1,5 @@
+export const runtime = "edge";
+
 import { NextResponse } from "next/server";
 import { getSupabaseAdminConfig, supabaseAdmin } from "@/lib/supabase/admin";
 import { generateOrderCode } from "@/lib/orders";

@@ -1,7 +1,7 @@
+export const runtime = "edge";
+
 import { NextResponse } from "next/server";
 import { getSupabaseAdminConfig, supabaseAdmin } from "@/lib/supabase/admin";
-
-export const runtime = "nodejs";
 
 interface DbCategory {
   name: string | null;

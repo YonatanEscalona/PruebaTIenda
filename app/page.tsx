@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 import BottomNav from "@/components/home/BottomNav";
 import Header from "@/components/home/Header";

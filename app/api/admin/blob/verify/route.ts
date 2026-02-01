@@ -1,8 +1,8 @@
+export const runtime = "edge";
+
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth/admin";
 import { fileExistsInR2 } from "@/lib/r2";
-
-export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   const auth = await requireAdmin(req);

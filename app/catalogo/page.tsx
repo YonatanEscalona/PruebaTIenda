@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 import StoreShell from "@/components/store/StoreShell";
 import CatalogProducts from "@/components/store/CatalogProducts";
