@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "Sebastián Escalona | Tienda Automotriz",
   description:
     "Accesorios racing, repuestos originales y productos destacados para tu vehículo.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
