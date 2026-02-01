@@ -1,35 +1,40 @@
 import { NextResponse } from "next/server";
-import {
-  BlobSASPermissions,
-  SASProtocol,
-  StorageSharedKeyCredential,
-  generateBlobSASQueryParameters,
-} from "@azure/storage-blob";
 import { requireAdmin } from "@/lib/auth/admin";
 import { sanitizeFileName } from "@/lib/slug";
-import {
-  getMaxUploadBytes,
-  getUploadPrefix,
-  resolveImageContentType,
-} from "@/lib/azure/blob-upload";
+import { getUploadSignedUrl, getPublicUrl } from "@/lib/r2";
 
 export const runtime = "nodejs";
+
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10MB
+
+const ALLOWED_TYPES: Record<string, string> = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  gif: "image/gif",
+  webp: "image/webp",
+  avif: "image/avif",
+};
+
+function resolveContentType(filename: string, providedType: string): { ok: true; contentType: string } | { ok: false; error: string } {
+  const ext = filename.split(".").pop()?.toLowerCase() || "";
+  const mapped = ALLOWED_TYPES[ext];
+  
+  if (mapped) {
+    return { ok: true, contentType: mapped };
+  }
+  
+  if (providedType && Object.values(ALLOWED_TYPES).includes(providedType)) {
+    return { ok: true, contentType: providedType };
+  }
+  
+  return { ok: false, error: "Tipo de archivo no permitido" };
+}
 
 export async function POST(req: Request) {
   const auth = await requireAdmin(req);
   if (!auth.ok) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
-  }
-
-  const account = process.env.AZURE_STORAGE_ACCOUNT ?? "";
-  const key = process.env.AZURE_STORAGE_KEY ?? "";
-  const container = process.env.AZURE_STORAGE_CONTAINER ?? "";
-
-  if (!account || !key || !container) {
-    return NextResponse.json(
-      { error: "Azure storage not configured" },
-      { status: 500 }
-    );
   }
 
   const body = await req.json();
@@ -41,43 +46,33 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Filename requerido" }, { status: 400 });
   }
 
-  const maxBytes = getMaxUploadBytes();
-  if (!Number.isFinite(size) || size <= 0 || size > maxBytes) {
+  if (!Number.isFinite(size) || size <= 0 || size > MAX_UPLOAD_BYTES) {
     return NextResponse.json(
-      { error: "Tamano de archivo invalido" },
+      { error: "Tamaño de archivo inválido (máx 10MB)" },
       { status: 400 }
     );
   }
 
   const safeName = sanitizeFileName(filename);
-  const resolved = resolveImageContentType(safeName, providedContentType);
+  const resolved = resolveContentType(safeName, providedContentType);
   if (!resolved.ok) {
     return NextResponse.json({ error: resolved.error }, { status: 400 });
   }
 
-  const prefix = getUploadPrefix();
-  const prefixSegment = prefix ? `${prefix}/` : "";
-  const blobName = `${prefixSegment}${Date.now()}-${safeName}`;
+  const blobName = `${Date.now()}-${safeName}`;
   const contentType = resolved.contentType;
 
-  const credential = new StorageSharedKeyCredential(account, key);
-  const startsOn = new Date(Date.now() - 2 * 60 * 1000);
-  const expiresOn = new Date(Date.now() + 10 * 60 * 1000);
+  // Generar URL firmada para subida directa a R2
+  const uploadUrl = await getUploadSignedUrl(blobName, contentType);
+  
+  if (!uploadUrl) {
+    return NextResponse.json(
+      { error: "Error generando URL de subida" },
+      { status: 500 }
+    );
+  }
 
-  const sas = generateBlobSASQueryParameters(
-    {
-      containerName: container,
-      blobName,
-      permissions: BlobSASPermissions.parse("cw"),
-      protocol: SASProtocol.Https,
-      startsOn,
-      expiresOn,
-    },
-    credential
-  ).toString();
-
-  const uploadUrl = `https://${account}.blob.core.windows.net/${container}/${blobName}?${sas}`;
-  const publicUrl = `https://${account}.blob.core.windows.net/${container}/${blobName}`;
+  const publicUrl = getPublicUrl(blobName);
 
   return NextResponse.json({ uploadUrl, publicUrl, blobName, contentType });
 }
