@@ -73,7 +73,7 @@ export default function HomeData() {
           throw new Error("No se pudieron cargar los productos.");
         }
         if (!categoriesRes.ok) {
-          throw new Error("No se pudieron cargar las categorias.");
+          throw new Error("No se pudieron cargar las categorías.");
         }
 
         const productsData = (await productsRes.json()) as Product[];
@@ -173,14 +173,14 @@ export default function HomeData() {
           <DealSpotlight product={dealProduct} />
           <FeaturedSection
             products={featuredProducts}
-            description="Seleccion curada con lo mas vendido del momento."
+            description="Selección curada con lo más vendido del momento."
           />
           <FeaturedSection
             products={latestProducts}
-            eyebrow="Recien llegados"
+            eyebrow="Recién llegados"
             title="Nuevas colecciones"
-            description="Descubre lo ultimo en hogar, tecnologia y audio."
-            emptyMessage="Aun no hay nuevas colecciones publicadas."
+            description="Descubre lo último en hogar, tecnología y audio."
+            emptyMessage="Aún no hay nuevas colecciones publicadas."
           />
         </>
       )}

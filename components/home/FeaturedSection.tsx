@@ -27,7 +27,7 @@ interface FeaturedSectionProps {
 
 export default function FeaturedSection({
   products,
-  eyebrow = "Lo mas vendido",
+  eyebrow = "Lo más vendido",
   title = (
     <>
       Productos
@@ -37,37 +37,38 @@ export default function FeaturedSection({
   ),
   description,
   ctaHref = "/catalogo",
-  ctaLabel = "Ver catalogo completo",
-  emptyMessage = "Aun no hay productos destacados.",
+  ctaLabel = "Ver catálogo completo",
+  emptyMessage = "Aún no hay productos destacados.",
 }: FeaturedSectionProps) {
   return (
     <section className="mx-auto w-full max-w-6xl px-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-red">
+      <div className="flex items-start justify-between mb-8">
+        <div className="space-y-3">
+          <p className="text-xs font-bold uppercase tracking-[0.3em] text-brand-red flex items-center gap-2">
+            <span className="inline-block w-8 h-0.5 bg-brand-red"></span>
             {eyebrow}
           </p>
-          <h2 className="mt-2 text-2xl font-bold uppercase italic text-black">
+          <h2 className="text-3xl font-bold uppercase tracking-tight text-black leading-tight">
             {title}
           </h2>
           {description ? (
-            <p className="mt-2 max-w-md text-sm text-slate-600">{description}</p>
+            <p className="mt-2 max-w-md text-sm text-slate-600 leading-relaxed">{description}</p>
           ) : null}
         </div>
         <Link
           href={ctaHref}
           aria-label={ctaLabel}
-          className="grid h-10 w-10 place-items-center rounded-full border border-slate-200 bg-white"
+          className="group flex h-11 w-11 items-center justify-center rounded-xl border-2 border-slate-200 bg-white transition-all hover:border-brand-red hover:bg-brand-red hover:shadow-lg"
         >
-          <SlidersHorizontal className="h-4 w-4 text-slate-600" />
+          <SlidersHorizontal className="h-4 w-4 text-slate-600 transition-colors group-hover:text-white" />
         </Link>
       </div>
       {products.length === 0 ? (
-        <div className="mt-6 rounded-3xl bg-white p-6 text-sm text-slate-600 shadow-sm ring-1 ring-black/5">
+        <div className="rounded-2xl bg-white p-8 text-center text-sm text-slate-600 shadow-sm ring-1 ring-black/5">
           {emptyMessage}
         </div>
       ) : (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((product) => (
             <ProductCard key={product.slug} {...product} />
           ))}
