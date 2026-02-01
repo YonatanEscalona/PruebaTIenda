@@ -20,10 +20,10 @@ export default function Hero() {
           <h1 className="font-display text-4xl uppercase leading-[1.05] tracking-[0.08em] sm:text-5xl">
             Todo para tu hogar,
             <br />
-            tecnologia y mucho mas
+            tecnología y mucho más
           </h1>
           <p className="max-w-md text-sm text-white/80 sm:text-base">
-            Seleccion premium con entrega rapida, pagos seguros y soporte real
+            Selección premium con entrega rápida, pagos seguros y soporte real
             en todo momento.
           </p>
           <div className="flex flex-wrap gap-3">
@@ -31,7 +31,7 @@ export default function Hero() {
               href="/catalogo"
               className="w-full max-w-xs rounded-full bg-brand-red px-6 py-3 text-center text-sm font-semibold uppercase tracking-[0.25em] text-white shadow-[0_18px_40px_-18px_rgba(239,68,68,0.85)] sm:w-auto"
             >
-              Ver catalogo
+              Ver catálogo
             </Link>
             <Link
               href="#ofertas"
