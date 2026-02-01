@@ -1,17 +1,5 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Sora } from "next/font/google";
 import "./globals.css";
-
-const sora = Sora({
-  variable: "--font-sora",
-  subsets: ["latin"],
-});
-
-const bebasNeue = Bebas_Neue({
-  variable: "--font-bebas",
-  subsets: ["latin"],
-  weight: ["400"],
-});
 
 export const metadata: Metadata = {
   title: "Sebastián Escalona | Tienda Automotriz",
@@ -26,8 +14,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sora:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body
-        className={`${sora.variable} ${bebasNeue.variable} antialiased bg-[var(--background)]`}
+        className="font-sora antialiased bg-[var(--background)]"
       >
         {children}
       </body>

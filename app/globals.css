@@ -9,6 +9,8 @@
   --brand-red-soft: #fee2e2;
   --muted: #94a3b8;
   --surface: #ffffff;
+  --font-sora: "Sora", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-bebas: "Bebas Neue", Impact, sans-serif;
 }
 
 @theme inline {
@@ -20,10 +22,18 @@
   --font-display: var(--font-bebas);
 }
 
+.font-sora {
+  font-family: var(--font-sora);
+}
+
+.font-bebas {
+  font-family: var(--font-bebas);
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sora), "Segoe UI", Helvetica, Arial, sans-serif;
+  font-family: var(--font-sora);
 }
 
 img {
